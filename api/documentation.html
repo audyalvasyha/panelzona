@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dokumentasi API Pemesanan Layanan</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f7f6;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        h1, h2, h3, h4 {
+            color: #2c3e50;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 15px;
+        }
+        h2 {
+            font-size: 1.8em;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+        h3 {
+            font-size: 1.4em;
+            color: #34495e;
+        }
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9em;
+            line-height: 1.4;
+            tab-size: 4;
+            -moz-tab-size: 4;
+            -o-tab-size: 4;
+            white-space: pre-wrap; /* Allows text to wrap */
+            word-wrap: break-word; /* Allows long words to break */
+        }
+        code {
+            background: #eef;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9em;
+            color: #c7254e;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table th, table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+            vertical-align: top;
+        }
+        table th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            color: #555;
+        }
+        table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        ul {
+            list-style-type: disc;
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        .note {
+            background-color: #e6f7ff;
+            border-left: 5px solid #2196f3;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .warning {
+            background-color: #fff3e0;
+            border-left: 5px solid #ff9800;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .success-box {
+            background-color: #e8f5e9;
+            border-left: 5px solid #4caf50;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Dokumentasi API Pemesanan Layanan</h1>
+
+        <p>API ini memungkinkan Anda untuk melakukan pemesanan layanan (misalnya, token/cheat _game_). Semua respons API dikirim dalam format JSON.</p>
+
+        <h2>1. Autentikasi</h2>
+        <p>Semua permintaan ke API ini memerlukan **API Key** yang valid untuk autentikasi.</p>
+
+        <h3>Cara Mengirim API Key</h3>
+        <p>API Key harus disertakan dalam setiap permintaan POST menggunakan salah satu dari dua cara berikut:</p>
+
+        <ul>
+            <li>
+                <h4>Disarankan: HTTP Header <code>X-API-Key</code></h4>
+                <p>Sertakan _header_ HTTP bernama <code>X-API-Key</code> dengan nilai API Key Anda.</p>
+                <pre><code>X-API-Key: your_secret_api_key_123</code></pre>
+            </li>
+            <li>
+                <h4>Alternatif: Parameter POST <code>api_key</code></h4>
+                <p>Sertakan parameter <code>api_key</code> dalam _body_ permintaan POST Anda.</p>
+                <pre><code>{
+    "api_key": "your_secret_api_key_123",
+    // ... parameter lainnya
+}</code></pre>
+                <p>Atau untuk <code>x-www-form-urlencoded</code>:</p>
+                <pre><code>api_key=your_secret_api_key_123&amp;...</code></pre>
+            </li>
+        </ul>
+
+        <h3>Respons Autentikasi</h3>
+        <ul>
+            <li>Jika API Key tidak ditemukan:
+                <pre><code>{
+    "status": "error",
+    "message": "API Key tidak ditemukan. Harap sertakan API Key di header X-API-Key atau parameter POST/GET.",
+    "data": null
+}</code></pre>
+                <p>(HTTP Status: <code>401 Unauthorized</code>)</p>
+            </li>
+            <li>Jika API Key tidak valid atau pengguna tidak ditemukan/tidak aktif:
+                <pre><code>{
+    "status": "error",
+    "message": "API Key tidak valid atau pengguna tidak ditemukan.",
+    "data": null
+}</code></pre>
+                <p>(HTTP Status: <code>401 Unauthorized</code>)</p>
+            </li>
+        </ul>
+
+
+        <h2>2. Endpoint: Membuat Pesanan Baru</h2>
+
+        <h3>URL Endpoint</h3>
+        <pre><code>[URL_DASAR_API_ANDA]/api/order.php</code></pre>
+        <p class="note">Ganti <code>[URL_DASAR_API_ANDA]</code> dengan domain dan path tempat API Anda di-_hosting_. Misalnya: <code>https://api.domainanda.com</code></p>
+
+        <h3>Metode HTTP</h3>
+        <p><code>POST</code></p>
+
+        <h3>Parameter Permintaan (Request Body)</h3>
+        <p>Permintaan harus dikirim sebagai <strong>JSON</strong> (<code>Content-Type: application/json</code>) atau <strong><code>x-www-form-urlencoded</code></strong>. Disarankan menggunakan JSON untuk konsistensi dan kemudahan.</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Nama Parameter</th>
+                    <th>Tipe</th>
+                    <th>Wajib</th>
+                    <th>Deskripsi</th>
+                    <th>Contoh Nilai</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>service</code></td>
+                    <td><code>string</code></td>
+                    <td>Ya</td>
+                    <td>
+                        <strong>ID Layanan</strong>. Ini adalah identifikasi unik dari layanan yang ingin Anda pesan.
+                        Anda harus mendapatkan daftar layanan yang tersedia (misalnya dari halaman layanan di _web_ Anda, atau melalui _endpoint_ daftar layanan jika ada).
+                    </td>
+                    <td><code>"123"</code></td>
+                </tr>
+                <tr>
+                    <td><code>data</code></td>
+                    <td><code>string</code></td>
+                    <td>Tidak</td>
+                    <td>
+                        Data spesifik yang diperlukan untuk layanan yang dipesan. Ini bisa berupa ID pemain, _username_, atau informasi lain yang relevan dengan layanan.
+                        <strong>Parameter ini boleh kosong (<code>""</code>)</strong> jika layanan yang dipilih tidak memerlukannya atau deskripsi layanan mengizinkannya.
+                    </td>
+                    <td><code>"user_id_in_game"</code> atau <code>""</code></td>
+                </tr>
+                <tr>
+                    <td><code>quantity</code></td>
+                    <td><code>integer</code></td>
+                    <td>Ya</td>
+                    <td>Jumlah atau kuantitas layanan yang ingin dipesan. Harus merupakan bilangan bulat positif.</td>
+                    <td><code>1</code></td>
+                </tr>
+                <tr>
+                    <td><code>category</code></td>
+                    <td><code>integer</code></td>
+                    <td>Ya</td>
+                    <td>
+                        <strong>ID Kategori _Game_</strong>. Digunakan untuk mengklasifikasikan pesanan berdasarkan _game_ yang relevan. <br>
+                        - <code>1</code>: CODM <br>
+                        - <code>2</code>: PUBG <br>
+                        - <code>3</code>: MLBB <br>
+                        <i>Jika ada kategori lain, pastikan untuk menanyakan ID-nya kepada administrator.</i>
+                    </td>
+                    <td><code>1</code></td>
+                </tr>
+                <tr>
+                    <td><code>api_key</code></td>
+                    <td><code>string</code></td>
+                    <td>Opsional</td>
+                    <td>
+                        <strong>API Key</strong> Anda. Hanya diperlukan jika tidak dikirimkan melalui _header_ <code>X-API-Key</code>.
+                    </td>
+                    <td><code>"your_api_key"</code></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Contoh Permintaan (JSON)</h3>
+        <pre><code>POST /api/order.php HTTP/1.1
+Host: api.domainanda.com
+Content-Type: application/json
+X-API-Key: your_secret_api_key_123
+
+{
+    "service": "123",
+    "data": "user_id_in_game_example",
+    "quantity": 1,
+    "category": 1
+}</code></pre>
+
+        <h3>Contoh Permintaan (x-www-form-urlencoded)</h3>
+        <pre><code>POST /api/order.php HTTP/1.1
+Host: api.domainanda.com
+Content-Type: application/x-www-form-urlencoded
+X-API-Key: your_secret_api_key_123
+
+service=123&amp;data=user_id_in_game_example&amp;quantity=1&amp;category=1</code></pre>
+        <p class="note"><i>Anda juga bisa menyertakan <code>api_key=your_secret_api_key_123</code> di _body_ jika tidak menggunakan _header_.</i></p>
+
+        <h3>Respons Berhasil (HTTP Status: <code>200 OK</code>)</h3>
+        <p>Jika pesanan berhasil dibuat dan semua validasi dilewati, Anda akan menerima respons seperti ini:</p>
+        <div class="success-box">
+            <pre><code>{
+    "status": "success",
+    "message": "Pesanan berhasil dibuat.",
+    "data": {
+        "user_id": "1",
+        "service_name": "CODM Cheat Premium",
+        "data": "user_id_in_game_example",
+        "quantity": 1,
+        "price": 10000,
+        "profit": 5000,
+        "remains": 1,
+        "status": "Success",
+        "token": "ZONA-KEY-ABCDEFGH",
+        "provider_id": "1",
+        "provider_order_id": "",
+        "created_at": "2025-05-27 01:33:16",
+        "order_id": 54321,
+        "total_price_formatted": "Rp 10.000",
+        "current_balance": 990000
+    }
+}</code></pre>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Kunci Respons</th>
+                    <th>Tipe</th>
+                    <th>Deskripsi</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>status</code></td>
+                    <td><code>string</code></td>
+                    <td>Selalu <code>"success"</code> jika berhasil.</td>
+                </tr>
+                <tr>
+                    <td><code>message</code></td>
+                    <td><code>string</code></td>
+                    <td>Pesan konfirmasi keberhasilan.</td>
+                </tr>
+                <tr>
+                    <td><code>data</code></td>
+                    <td><code>object</code></td>
+                    <td>Objek yang berisi detail pesanan yang baru dibuat.</td>
+                </tr>
+                <tr>
+                    <td><code>data.user_id</code></td>
+                    <td><code>string</code></td>
+                    <td>ID pengguna yang membuat pesanan.</td>
+                </tr>
+                <tr>
+                    <td><code>data.service_name</code></td>
+                    <td><code>string</code></td>
+                    <td>Nama layanan yang dipesan.</td>
+                </tr>
+                <tr>
+                    <td><code>data.data</code></td>
+                    <td><code>string</code></td>
+                    <td>Data pesanan yang dikirimkan.</td>
+                </tr>
+                <tr>
+                    <td><code>data.quantity</code></td>
+                    <td><code>integer</code></td>
+                    <td>Kuantitas pesanan.</td>
+                </tr>
+                <tr>
+                    <td><code>data.price</code></td>
+                    <td><code>float</code></td>
+                    <td>Total harga pesanan.</td>
+                </tr>
+                <tr>
+                    <td><code>data.profit</code></td>
+                    <td><code>float</code></td>
+                    <td>Profit dari pesanan (atau durasi dalam hari, tergantung konfigurasi <code>service</code>).</td>
+                </tr>
+                <tr>
+                    <td><code>data.remains</code></td>
+                    <td><code>integer</code></td>
+                    <td>Kuantitas sisa (biasanya sama dengan <code>quantity</code> untuk pesanan baru).</td>
+                </tr>
+                <tr>
+                    <td><code>data.status</code></td>
+                    <td><code>string</code></td>
+                    <td>Status pesanan (misalnya <code>"Success"</code>, <code>"Pending"</code>).</td>
+                </tr>
+                <tr>
+                    <td><code>data.token</code></td>
+                    <td><code>string</code></td>
+                    <td>Token/kunci akses yang dihasilkan untuk layanan.</td>
+                </tr>
+                <tr>
+                    <td><code>data.provider_id</code></td>
+                    <td><code>string</code></td>
+                    <td>ID penyedia layanan eksternal.</td>
+                </tr>
+                <tr>
+                    <td><code>data.provider_order_id</code></td>
+                    <td><code>string</code></td>
+                    <td>ID pesanan dari penyedia eksternal (mungkin kosong jika belum terintegrasi).</td>
+                </tr>
+                <tr>
+                    <td><code>data.created_at</code></td>
+                    <td><code>string</code></td>
+                    <td>Timestamp pembuatan pesanan (<code>YYYY-MM-DD HH:MM:SS</code>).</td>
+                </tr>
+                <tr>
+                    <td><code>data.order_id</code></td>
+                    <td><code>integer</code></td>
+                    <td>ID unik pesanan yang baru dibuat di sistem Anda.</td>
+                </tr>
+                <tr>
+                    <td><code>data.total_price_formatted</code></td>
+                    <td><code>string</code></td>
+                    <td>Total harga pesanan dalam format mata uang yang mudah dibaca.</td>
+                </tr>
+                <tr>
+                    <td><code>data.current_balance</code></td>
+                    <td><code>float</code></td>
+                    <td>Saldo pengguna setelah pemotongan untuk pesanan ini.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        ---
+
+        <h2>3. Penanganan Kesalahan (Error Handling)</h2>
+        <p>API akan merespons dengan status HTTP _code_ yang sesuai dan _body_ JSON berisi detail kesalahan.</p>
+
+        <h3>Contoh Respons Kesalahan Umum</h3>
+        <ul>
+            <li>
+                <h4>Permintaan Tidak Diizinkan (HTTP Status: <code>405 Method Not Allowed</code>)</h4>
+                <p>Penyebab: Menggunakan metode HTTP selain <code>POST</code>.</p>
+                <pre><code>{
+    "status": "error",
+    "message": "Metode request tidak diizinkan. Gunakan POST.",
+    "data": null
+}</code></pre>
+            </li>
+            <li>
+                <h4>Permintaan Buruk / Input Tidak Lengkap (HTTP Status: <code>400 Bad Request</code>)</h4>
+                <p>Penyebab: Parameter wajib hilang atau tidak valid (<code>service</code>, <code>quantity</code>, <code>category</code>), atau kuantitas di luar batas min/max.</p>
+                <pre><code>{
+    "status": "error",
+    "message": "Input tidak lengkap: `service` diperlukan.",
+    "data": null
+}</code></pre>
+                <p>Atau:</p>
+                <pre><code>{
+    "status": "error",
+    "message": "Input layanan atau kuantitas tidak boleh kosong atau kuantitas harus lebih dari 0.",
+    "data": null
+}</code></pre>
+                <p>Atau:</p>
+                <pre><code>{
+    "status": "error",
+    "message": "Jumlah minimal pesan 1.", // Contoh: jika quantity &lt; min
+    "data": null
+}</code></pre>
+                <p>Atau:</p>
+                <pre><code>{
+    "status": "error",
+    "message": "Jumlah maksimal pesan 1000.", // Contoh: jika quantity &gt; max
+    "data": null
+}</code></pre>
+            </li>
+            <li>
+                <h4>Layanan Tidak Ditemukan (HTTP Status: <code>404 Not Found</code>)</h4>
+                <p>Penyebab: <code>service</code> ID yang diberikan tidak ada atau tidak aktif.</p>
+                <pre><code>{
+    "status": "error",
+    "message": "Layanan tidak ditemukan atau tidak aktif.",
+    "data": null
+}</code></pre>
+            </li>
+            <li>
+                <h4>Pembayaran Diperlukan / Saldo Tidak Cukup (HTTP Status: <code>402 Payment Required</code>)</h4>
+                <p>Penyebab: Saldo pengguna tidak cukup untuk membayar total harga pesanan.</p>
+                <pre><code>{
+    "status": "error",
+    "message": "Saldo Anda tidak cukup untuk membuat pesanan. Sisa saldo Rp 50.000.",
+    "data": null
+}</code></pre>
+            </li>
+            <li>
+                <h4>Layanan Tidak Tersedia (HTTP Status: <code>503 Service Unavailable</code>)</h4>
+                <p>Penyebab: Penyedia layanan terkait dengan layanan yang dipesan tidak tersedia atau tidak ditemukan.</p>
+                <pre><code>{
+    "status": "error",
+    "message": "Maaf, penyedia layanan saat ini tidak tersedia. Silakan kontak Admin.",
+    "data": null
+}</code></pre>
+            </li>
+            <li>
+                <h4>Kesalahan Internal Server (HTTP Status: <code>500 Internal Server Error</code>)</h4>
+                <p>Penyebab: Terjadi masalah internal di server, seperti konfigurasi modul tidak ditemukan, masalah _database_, atau masalah dengan integrasi API pihak ketiga (jika diimplementasikan).</p>
+                <pre><code>{
+    "status": "error",
+    "message": "Konfigurasi modul tidak ditemukan atau tidak aktif.",
+    "data": null
+}</code></pre>
+                <p>Atau:</p>
+                <pre><code>{
+    "status": "error",
+    "message": "Maaf, terjadi masalah saat memproses pesanan ke penyedia. Silakan kontak Admin.",
+    "data": null
+}</code></pre>
+                <p>Atau:</p>
+                <pre><code>{
+    "status": "error",
+    "message": "Pesanan gagal dibuat karena masalah database.",
+    "data": null
+}</code></pre>
+                <p>Atau:</p>
+                <pre><code>{
+    "status": "error",
+    "message": "Terjadi kesalahan tak terduga dalam logika API: [Pesan Exception].",
+    "data": null
+}</code></pre>
+            </li>
+        </ul>
+
+        ---
+
+        <h2>4. Catatan Penting</h2>
+        <ul>
+            <li>Pastikan Anda selalu menggunakan <strong>HTTPS</strong> untuk semua komunikasi API Anda untuk keamanan data.</li>
+            <li>Tangani semua respons, baik sukses maupun error, di sisi aplikasi klien Anda.</li>
+            <li>Periksa <code>current_balance</code> dalam respons sukses untuk mendapatkan saldo terbaru pengguna setelah pesanan.</li>
+        </ul>
+
+    </div>
+</body>
+</html>
